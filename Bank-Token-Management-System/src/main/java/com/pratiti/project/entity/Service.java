@@ -11,7 +11,7 @@ import java.util.List;
 public class Service  {
 	@Id
 	@SequenceGenerator(name = "service_sequence_generator", sequenceName = "service_sequence", allocationSize = 100)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "serviceType_sequence_generator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "service_sequence_generator")
 	private int id;
 
 	@Column(name="service_name")

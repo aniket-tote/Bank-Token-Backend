@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.pratiti.project.model.ServiceAndTypes;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import com.pratiti.project.entity.Counter;
@@ -24,7 +25,7 @@ public class ManagerController {
 
 	@Autowired
 	private ManagerService managerService;
-
+	
 	@PostMapping("/login/manager")
 	public LoginStatus managerLogin(@RequestBody LoginData loginData) {
 		LoginStatus status=new LoginStatus();
