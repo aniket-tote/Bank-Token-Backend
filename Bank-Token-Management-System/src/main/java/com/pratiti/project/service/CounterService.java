@@ -2,7 +2,6 @@ package com.pratiti.project.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class CounterService {
 
 	@Autowired
 	private TokenRepository tokenRepository;
-	
+
 	@Autowired
 	CounterRepository counterRepository;
 
@@ -36,19 +35,18 @@ public class CounterService {
 	@Autowired
 	PendingQueueRepository pendingQueueRepository;
 
-//	TokenQueueManager tokenqueue = TokenQueueManager.getInstance();
+	// TokenQueueManager tokenqueue = TokenQueueManager.getInstance();
 
 	public GlobalQueue callNext(int counterId) throws CounterServiceException {
 		GlobalQueue globalToken;
-		
-		if(counterRepository.findById(counterId).get().getIsActive()==0) {
+
+		if (counterRepository.findById(counterId).get().getIsActive() == 0) {
 			throw new CounterServiceException("Counter Not Active");
 		}
-		
-		if(counterRepository.findById(counterId).get().getIsWorking()!=0) {
+
+		if (counterRepository.findById(counterId).get().getIsWorking() != 0) {
 			throw new CounterServiceException("Please serve the called token first");
 		}
-		
 
 		if (globalQueueRepository.findAllPending().size() == 0) {
 			if (pendingQueueRepository.findAll().size() == 0) {
@@ -72,38 +70,38 @@ public class CounterService {
 		globalToken.setFrequencyOfCalling(globalToken.getFrequencyOfCalling() + 1);
 		globalToken.setStatus(TempStatus.ACTIVE);
 		globalQueueRepository.save(globalToken);
-		
+
 		Counter counter = counterRepository.findById(counterId).get();
 		counter.setIsWorking(globalToken.getTokenId());
 		counterRepository.save(counter);
-		
+
 		count++;
 		return globalToken;
 	}
 
 	public Token serveToken(int counterId) throws CounterServiceException {
-		
-		if(counterRepository.findById(counterId).isEmpty()) {
+
+		if (counterRepository.findById(counterId).isEmpty()) {
 			throw new CounterServiceException("Counter Not Found");
 		}
-		
+
 		Counter counter = counterRepository.findById(counterId).get();
-		
-		if(counter.getIsActive()==0) {
+
+		if (counter.getIsActive() == 0) {
 			throw new CounterServiceException("Counter Not Active");
 		}
-		
-		if(counter.getIsWorking()==0) {
+
+		if (counter.getIsWorking() == 0) {
 			throw new CounterServiceException("Please call any token first");
 		}
-		
-		if(globalQueueRepository.findById(counter.getIsWorking()).isEmpty()) {
+
+		if (globalQueueRepository.findById(counter.getIsWorking()).isEmpty()) {
 			throw new CounterServiceException("Token not found.");
 		}
-		
+
 		GlobalQueue globalToken = globalQueueRepository.findById(counter.getIsWorking()).get();
-		
-		if(globalToken.getStatus() != TempStatus.ACTIVE) {
+
+		if (globalToken.getStatus() != TempStatus.ACTIVE) {
 			throw new CounterServiceException("Token not active.");
 		}
 
@@ -122,40 +120,40 @@ public class CounterService {
 		token.setServeTime((int) Duration.between(globalToken.getCalledAtTime(), currTime).toMinutes());
 		tokenRepository.save(token);
 		globalQueueRepository.delete(globalToken);
-		
+
 		counter.setIsWorking(0);
 		counterRepository.save(counter);
 		return token;
 	}
 
-	public boolean addTokenToPending(int counterId) throws CounterServiceException{
-		if(counterRepository.findById(counterId).isEmpty()) {
+	public boolean addTokenToPending(int counterId) throws CounterServiceException {
+		if (counterRepository.findById(counterId).isEmpty()) {
 			throw new CounterServiceException("Counter Not Found");
 		}
-		
+
 		Counter counter = counterRepository.findById(counterId).get();
-		
-		if(counter.getIsActive()==0) {
+
+		if (counter.getIsActive() == 0) {
 			throw new CounterServiceException("Counter Not Active");
 		}
-		
-		if(counter.getIsWorking()==0) {
+
+		if (counter.getIsWorking() == 0) {
 			throw new CounterServiceException("Please call any token first");
 		}
-		
-		if(globalQueueRepository.findById(counter.getIsWorking()).isEmpty()) {
+
+		if (globalQueueRepository.findById(counter.getIsWorking()).isEmpty()) {
 			throw new CounterServiceException("Token not found.");
 		}
-		
+
 		GlobalQueue globalToken = globalQueueRepository.findById(counter.getIsWorking()).get();
-		
-		if(globalToken.getStatus() != TempStatus.ACTIVE) {
+
+		if (globalToken.getStatus() != TempStatus.ACTIVE) {
 			throw new CounterServiceException("Token not active.");
 		}
 
 		counter.setIsWorking(0);
 		counterRepository.save(counter);
-		
+
 		if (globalToken.getFrequencyOfCalling() == 3) {
 			Token token = new Token();
 			token.setId(globalToken.getTokenId());
@@ -192,17 +190,17 @@ public class CounterService {
 	}
 
 	public GlobalQueue getActiveToken(int counterId) {
-		if(counterRepository.findById(counterId).isEmpty()) {
+		if (counterRepository.findById(counterId).isEmpty()) {
 			throw new CounterServiceException("Counter Not Found");
 		}
-		
+
 		Counter counter = counterRepository.findById(counterId).get();
-		
-		if(counter.getIsActive()==0) {
+
+		if (counter.getIsActive() == 0) {
 			throw new CounterServiceException("Counter Not Active");
 		}
-		
-		if(counter.getIsWorking()==0) {
+
+		if (counter.getIsWorking() == 0) {
 			throw new CounterServiceException("Please call any token first");
 		}
 		// TODO Auto-generated method stub
